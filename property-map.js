@@ -131,6 +131,12 @@ var properties = {
 	, 'width': 'width'
 	, 'wmode': 'wmode'
 	, 'wrap': 'wrap'
+
+	// IE properties
+	, 'CHECKED': 'checked'
+	, 'DISABLED': 'disabled'
+	, 'SELECTED': 'selected'
+	, 'VALUE': 'value'
 };
 
 module.exports = properties;
