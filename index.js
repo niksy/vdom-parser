@@ -7,6 +7,8 @@
 
 'use strict';
 
+var hasOwnProp = Object.prototype.hasOwnProperty;
+
 var VNode = require('virtual-dom/vnode/vnode');
 var VText = require('virtual-dom/vnode/vtext');
 var domParser;
@@ -17,6 +19,30 @@ var namespaceMap = require('./namespace-map');
 var HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 
 module.exports = parser;
+
+/**
+ * Parse inline styles from DOM element
+ *
+ * @param   Object  el  DOM element
+ * @return  Object      Inline style values
+ */
+function parseInlineStyles ( el ) {
+	var style = el.style;
+	var output = {};
+	if ( document.all && !document.addEventListener ) { // IE8
+		for (var prop in style) {
+			if (style[prop] && hasOwnProp.call(style, prop)) {
+				output[prop] = style[prop];
+			}
+		}
+	} else {
+		for (var i = 0; i < style.length; ++i) {
+			var item = style.item(i);
+			output[item] = style[item];
+		}
+	}
+	return output;
+}
 
 /**
  * DOM/html string to vdom parser
@@ -152,13 +178,7 @@ function createProperties(el) {
 	for (var i = 0; i < el.attributes.length; i++) {
 		// Use built in CSS style parsing
 		if(el.attributes[i].name == 'style'){
-			var style = el.style;
-			var output = {};
-			for (var i = 0; i < style.length; ++i) {
-				var item = style.item(i);
-				output[item] = style[item];
-			}
-			attr = {name: 'style', value: output};
+			attr = {name: 'style', value: parseInlineStyles(el)};
 		}
 		else if (ns) {
 			attr = createPropertyNS(el.attributes[i]);
