@@ -18,6 +18,8 @@ var namespaceMap = require('./namespace-map');
 
 var HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
 
+var isIE8 = document.all && !document.addEventListener;
+
 module.exports = parser;
 
 /**
@@ -29,7 +31,7 @@ module.exports = parser;
 function parseInlineStyles ( el ) {
 	var style = el.style;
 	var output = {};
-	if ( document.all && !document.addEventListener ) { // IE8
+	if ( isIE8 ) {
 		for (var prop in style) {
 			if (style[prop] && hasOwnProp.call(style, prop)) {
 				output[prop] = style[prop];
@@ -231,6 +233,13 @@ function createProperty(attr) {
 		isAttr = true;
 	} else {
 		value = attr.value;
+	}
+
+	// special cases for specific attributes in IE8, we default to properties.attributes[name]
+	if ( isIE8 ) {
+		if ( name === 'type' ) {
+			isAttr = true;
+		}
 	}
 
 	return {
